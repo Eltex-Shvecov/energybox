@@ -1,11 +1,39 @@
+#include <rdm6300.h>
 #include <SoftwareSerial.h>
 
-const int rx = 10;
-const int tx = 11;
+#define RDM6300_TX_PIN 9
+
+const int rx_esp = 10;
+const int tx_esp = 11;
 const int BUTTON = 8;
 const int DEBUG = 13;
 
-SoftwareSerial Esp_Serial(rx, tx);
+Rdm6300 CardReader;
+SoftwareSerial Esp_Serial(rx_esp, tx_esp);
+
+class PointSystem
+{
+  public:
+    PointSystem() : point(0) {}
+    ~PointSystem() {}
+
+    void zeroPoint() { point = 0; }
+    int getPoint() { return this->point; }
+    void plusPoint(int cnt) { point += cnt; }
+    bool isZero()
+    {
+      if (this->point)
+      {
+        return false;
+      }
+      else
+      {
+        return true;
+      }
+    }
+  private:
+    int point;
+} Point;
 
 void debugBlink()
 {
@@ -14,14 +42,39 @@ void debugBlink()
   digitalWrite(DEBUG, LOW);
 }
 
-void setup() {
-  // put your setup code here, to run once:
+void setup()
+{
+  Serial.begin(115200);
   Esp_Serial.begin(9600);
+  CardReader.begin(RDM6300_TX_PIN);
   pinMode(BUTTON, INPUT);
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+void loop()
+{
+  if (CardReader.update())
+  {
+    if (Point.isZero())
+    {
+      // пишем на экран количество очков на карте
+      digitalWrite(DEBUG, HIGH);
+      delay(500);
+      digitalWrite(DEBUG, LOW);
+    }
+    else
+    {
+      String param = "?card=";
+      String cardNumber = String(CardReader.get_tag_id());
+      param += cardNumber;
+      param += "&point=";
+      String point = String(Point.getPoint());
+      param += point;
+      Esp_Serial.write(param.c_str());
+      Point.zeroPoint();
+      debugBlink();
+    }    
+  }
+  
   if (digitalRead(BUTTON) == HIGH)
   {
     while (digitalRead(BUTTON) == HIGH)
@@ -32,6 +85,7 @@ void loop() {
     debugBlink();
 
     // тут отправляем данные якобы карточки
-    Esp_Serial.write("testcard");
+    Point.plusPoint(1);
+    //Esp_Serial.write("testcard");
   }
 }

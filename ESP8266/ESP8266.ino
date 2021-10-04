@@ -11,7 +11,7 @@ const char * PASS = "89513929811";
 unique_ptr<WiFiClientSecure>client(new WiFiClientSecure);
 
 void DebugBlink();
-void SendCardInfo(String url, String cardNumber, int point);
+void SendCardInfo(String url, String param);
 
 void setup()
 {
@@ -47,8 +47,8 @@ void loop()
   {
     // пришел номер карты и количество очков
     // отправляем данные на сервер
-    String card = Serial.readStringUntil('\r');
-    SendCardInfo("", card, 5);
+    String param = Serial.readStringUntil('\r');
+    SendCardInfo("", param);
   }
 }
 
@@ -60,16 +60,13 @@ void DebugBlink()
   delay(500);
 }
 
-void SendCardInfo(String url, String cardNumber, int point)
+void SendCardInfo(String url, String param)
 {
   HTTPClient httpClient;
   client->setInsecure();
 
   String fullURL = "https://webhook.site/8795681a-436b-4424-bf02-99c81c1e15a9";
-  fullURL += "?card=";
-  fullURL += cardNumber;
-  fullURL += "&point=";
-  fullURL += point;
+  fullURL += param;
 
   Serial.println(fullURL);
   if (httpClient.begin(*client, fullURL))

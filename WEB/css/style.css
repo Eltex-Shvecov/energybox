@@ -1,0 +1,23 @@
+.description{
+    position: absolute;
+    top: 30%;
+    margin: auto;
+    padding: 2em;
+}
+
+.description h1{
+ color:#00F9BB ;
+}
+
+.description p{
+ color:#666;
+ font-size: 20px;
+ width: 50%;
+ line-height: 1.5;
+}
+
+.description button{
+ border:1px  solid #00F9BB;
+ background:#00F9BB;
+ color:#fff;
+}
