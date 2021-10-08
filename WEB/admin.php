@@ -1,11 +1,12 @@
 <?php
-	$conn = mysqli_connect("192.168.0.177", "root", "");
+	$conn = mysqli_connect("192.168.20.21", "energybox_user", "Ghjcnjnfr564nfr");
 	if (!$conn)
 	{
-		mysqli_error($conn);
+		echo mysqli_error($conn);
 	}
 
-	$sql = "SELECT * FROM energybox.Users";
+	mysqli_set_charset($conn, "utf8");
+	$sql = "SELECT * FROM energybox_db.Users";
 
 	if($result = mysqli_query($conn, $sql))
 	{
@@ -17,7 +18,7 @@
 	}
 	else
 	{
-		mysqli_error($conn);
+		echo mysqli_error($conn);
 	}
 
 	mysqli_close($conn);

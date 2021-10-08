@@ -44,7 +44,7 @@ void debugBlink()
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(9600);
   Esp_Serial.begin(9600);
   CardReader.begin(RDM6300_TX_PIN);
   pinMode(BUTTON, INPUT);
@@ -69,6 +69,7 @@ void loop()
       param += "&point=";
       String point = String(Point.getPoint());
       param += point;
+      Serial.println(param);
       Esp_Serial.write(param.c_str());
       Point.zeroPoint();
       debugBlink();
@@ -87,5 +88,12 @@ void loop()
     // тут отправляем данные якобы карточки
     Point.plusPoint(1);
     //Esp_Serial.write("testcard");
+  }
+
+  if (Esp_Serial.available())
+  {
+    Serial.print("Getstr: ");
+    String str = Esp_Serial.readString();
+    Serial.println(str);
   }
 }

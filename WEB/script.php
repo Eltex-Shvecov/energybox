@@ -2,12 +2,13 @@
 	$_CardNumber = $_GET["card"];
 	$_Point = $_GET["point"];
 
-	$conn = mysqli_connect("192.168.0.177", "root", "");
+	$conn = mysqli_connect("192.168.20.21", "energybox_user", "Ghjcnjnfr564nfr");
 	if(!$conn)
 	{
 		die("Connection failed: " . mysqli_connect_error());
 	}
-	mysqli_select_db($conn, "energybox");
+	mysqli_set_charset($conn, "utf8");
+	mysqli_select_db($conn, "energybox_db");
 
 	if($_Point)
 	{

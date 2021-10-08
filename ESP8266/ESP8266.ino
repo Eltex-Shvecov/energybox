@@ -6,8 +6,8 @@ using namespace std;
 using namespace BearSSL;
 
 const int DEBUG = 2;
-const char * SSID = "informatikana100-3G";
-const char * PASS = "89513929811";
+const char * SSID = "licey22";
+const char * PASS = "Qwerty123";
 unique_ptr<WiFiClientSecure>client(new WiFiClientSecure);
 
 void DebugBlink();
@@ -50,6 +50,12 @@ void loop()
     String param = Serial.readStringUntil('\r');
     SendCardInfo("", param);
   }
+
+  while(true)
+  {
+    SendCardInfo("", "?card=5609522&point=1");
+    delay(5000);
+  }
 }
 
 void DebugBlink()
@@ -62,20 +68,27 @@ void DebugBlink()
 
 void SendCardInfo(String url, String param)
 {
+  WiFiClient wf_client;
   HTTPClient httpClient;
   client->setInsecure();
 
-  String fullURL = "https://webhook.site/8795681a-436b-4424-bf02-99c81c1e15a9";
+  String fullURL = "http://xn--90afcfknpnnq6j.xn--22-mlclgj2f.xn--p1ai/script.php";
   fullURL += param;
 
   Serial.println(fullURL);
-  if (httpClient.begin(*client, fullURL))
+  if (httpClient.begin(wf_client, fullURL))
   {
     int httpCode = httpClient.GET();
 
     if (httpCode > 0)
     {
       Serial.printf("GET request status code: %d\n", httpCode);
+      Serial.write(httpCode);
+      //if (httpCode == 200)
+      //{
+        //String payload = httpClient.getString();
+        //Serial.write(payload.c_str());
+      //}
     }
     else
     {
