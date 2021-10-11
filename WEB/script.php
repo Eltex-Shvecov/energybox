@@ -18,6 +18,8 @@
 		{
 			foreach ($request as $row)
 			{
+				$Name = $row["Name"];
+				$Surname = $row["Surname"];
 				$curPoint = $row["Point"];
 			}
 			mysqli_free_result($request);
@@ -33,7 +35,7 @@
 			echo mysqli_error($conn);
 		}
 
-		echo "Баллов зачислено: ".$_Point;
+		echo "Points accrued: ".$_Point;
 	}
 	else
 	{
@@ -48,7 +50,7 @@
 				$Surname = $row["Surname"];
 				$Point = $row["Point"];
 			}
-			echo $Name." ".$Surname."<br>Ваши баллы: ".$Point;
+			echo $Name." ".$Surname."\nYour points: ".$Point;
 			mysqli_free_result($request);
 		}
 		else

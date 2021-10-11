@@ -15,7 +15,7 @@ void SendCardInfo(String url, String param);
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   pinMode(DEBUG, OUTPUT);
   int start_esp = 10;
 
