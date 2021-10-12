@@ -1,17 +1,27 @@
+#include <LiquidCrystal.h>
 #include <rdm6300.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 
 #define RDM_TX_PIN 13
+#define LED_RS 5
+#define LED_E 4
+#define LED_DB_4 00
+#define LED_DB_5 2
+#define LED_DB_6 14
+#define LED_DB_7 12
+
 #define DEBUG(var) Serial.println(var)
 
 const int DEBUG_LED = 2;
-const int BUTTON = 16;
+const int BUTTERY = 16;
 const char * SSID = "licey22";
 const char * PASS = "cYsRpDY4";
 
 Rdm6300 CardReader;
+LiquidCrystal lcd(LED_RS, LED_E, LED_DB_7, LED_DB_6, LED_DB_5, LED_DB_4);
 
+void LEDPrintWelcomeText();
 void SendCardInfo(String param);
 
 class PointSystem
@@ -38,61 +48,81 @@ class PointSystem
     int point;
 } Point;
 
-
 void setup()
 {
-  CardReader.begin(RDM_TX_PIN);
   Serial.begin(115200);
+  lcd.begin(16, 2);
   pinMode(DEBUG_LED, OUTPUT);
-  digitalWrite(DEBUG_LED, HIGH);
+  pinMode(BUTTERY, INPUT);
 
   // пауза перед запуском платы
   int start_esp = 5;
+  lcd.clear();
+  lcd.home();
+  lcd.print("Started ...");
+  
   while (start_esp)
   {
-    Serial.printf("NODE MCU Started ... (%d)\n", start_esp--);
+    lcd.setCursor(12, 0);
+    lcd.print(start_esp--);
     delay(1000);
   }
 
+  digitalWrite(DEBUG_LED, HIGH);
+  CardReader.begin(RDM_TX_PIN);
+  
   // подключение к WiFi сети
   WiFi.begin(SSID, PASS);
-  Serial.println("Connecting to WiFi");
+  lcd.clear();
+  lcd.home();
+  lcd.print("Connecting WiFi");
+
+  lcd.setCursor(0, 1);
   while(WiFi.status() != WL_CONNECTED)
   {
-    Serial.print(".");
+    lcd.print(".");
     delay(500);
   }
-  digitalWrite(DEBUG_LED, LOW);
+
+  lcd.clear();
+  lcd.home();
+  lcd.print("Connected WiFi!!!");
   delay(2000);
-  Serial.printf("\nConnecting Success!\n");
-  digitalWrite(DEBUG_LED, HIGH);
+  
+  LEDPrintWelcomeText();
 }
 
 void loop()
 {
   // обработчик датчика препятствия
-  if (!digitalRead(BUTTON))
+  if (!digitalRead(BUTTERY))
   {
-    while(!digitalRead(BUTTON)) {}
+    while(!digitalRead(BUTTERY)) {}
     Point.plusPoint(1);
-    DEBUG("Plus point");
-    digitalWrite(DEBUG_LED, LOW);
-    delay(1000);
-    digitalWrite(DEBUG_LED, HIGH);
+    lcd.home();
+    lcd.clear();
+    lcd.print("Points: ");
+    lcd.setCursor(8, 0);
+    lcd.print(Point.getPoint());
     delay(1000);
   }
   
   // обработчик считывания карточки
   if (CardReader.update())
   {
-    digitalWrite(DEBUG_LED, LOW);
     delay(1000);
-    digitalWrite(DEBUG_LED, HIGH);
     String card_id = String(CardReader.get_tag_id());
     String query = "?card=";
     query += card_id;
     query += "&point=";
     String point = String(Point.getPoint());
+    if (Point.getPoint() > 0)
+    {
+      lcd.clear();
+      lcd.home();
+      lcd.print("Recording points");
+      delay(2000);
+    }
     query += point;
  
     if(!Point.isZero())
@@ -102,6 +132,7 @@ void loop()
     
     SendCardInfo(query);
     delay(2000);
+    LEDPrintWelcomeText();
   }
 
   // обработчик serial порта
@@ -128,6 +159,9 @@ void SendCardInfo(String param)
     if (httpCode > 0)
     {
       String payload = String(httpClient.getString());
+      lcd.clear();
+      lcd.home();
+      lcd.print(payload.c_str());
       DEBUG(payload.c_str());
     }
     else
@@ -141,3 +175,13 @@ void SendCardInfo(String param)
     DEBUG("Client Unreachable...");
   }
 }
+
+ void LEDPrintWelcomeText()
+ {
+    lcd.clear();
+    lcd.setCursor(6, 0);
+    lcd.print("\x9F\x9E\x9C\x9B");
+    lcd.setCursor(3, 1);
+    lcd.print("Energy Box");
+ }
+
