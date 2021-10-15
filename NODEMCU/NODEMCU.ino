@@ -15,8 +15,8 @@
 
 const int DEBUG_LED = 2;
 const int BUTTERY = 16;
-const char * SSID = "licey22";
-const char * PASS = "cYsRpDY4";
+const char * SSID = "Notebook";
+const char * PASS = "Noteb00k!";
 
 Rdm6300 CardReader;
 LiquidCrystal lcd(LED_RS, LED_E, LED_DB_7, LED_DB_6, LED_DB_5, LED_DB_4);
@@ -110,7 +110,6 @@ void loop()
   // обработчик считывания карточки
   if (CardReader.update())
   {
-    delay(1000);
     String card_id = String(CardReader.get_tag_id());
     String query = "?card=";
     query += card_id;
@@ -158,10 +157,25 @@ void SendCardInfo(String param)
 
     if (httpCode > 0)
     {
+      int i;
       String payload = String(httpClient.getString());
+      char buff[32];
+      payload.toCharArray(buff, 32);
       lcd.clear();
       lcd.home();
-      lcd.print(payload.c_str());
+      for (i = 0; buff[i] != '\n' && buff[i] != '\0'; i++)
+      {
+        lcd.setCursor(i, 0);
+        lcd.print(buff[i]);
+      }
+      i++;
+      for (; buff[i] != '\n' && buff[i] != '\0'; i++)
+      {
+        lcd.setCursor(i, 1);
+        lcd.print(buff[i]);
+      }
+
+      //lcd.print(payload.c_str());
       DEBUG(payload.c_str());
     }
     else
