@@ -4,10 +4,10 @@
 #include <ESP8266HTTPClient.h>
 
 #define RDM_TX_PIN 13
-#define LED_RS 5
-#define LED_E 4
+#define LED_RS 05
+#define LED_E 04
 #define LED_DB_4 00
-#define LED_DB_5 2
+#define LED_DB_5 02
 #define LED_DB_6 14
 #define LED_DB_7 12
 
@@ -15,11 +15,11 @@
 
 const int DEBUG_LED = 2;
 const int BUTTERY = 16;
-const char * SSID = "Notebook";
-const char * PASS = "Noteb00k!";
+const char * SSID = "licey22";
+const char * PASS = "cYsRpDY4";
 
 Rdm6300 CardReader;
-LiquidCrystal lcd(LED_RS, LED_E, LED_DB_7, LED_DB_6, LED_DB_5, LED_DB_4);
+LiquidCrystal lcd(LED_RS, LED_E, LED_DB_4, LED_DB_5, LED_DB_6, LED_DB_7);
 
 void LEDPrintWelcomeText();
 void SendCardInfo(String param);
@@ -95,6 +95,7 @@ void setup()
 void loop()
 {
   // обработчик датчика препятствия
+
   if (!digitalRead(BUTTERY))
   {
     while(!digitalRead(BUTTERY)) {}
@@ -145,6 +146,8 @@ void loop()
 
 void SendCardInfo(String param)
 {
+  int i;
+  int r;
   WiFiClient wf_client;
   HTTPClient httpClient;
   //client->setInsecure();
@@ -159,24 +162,21 @@ void SendCardInfo(String param)
     {
       int i;
       String payload = String(httpClient.getString());
-      char buff[32];
-      payload.toCharArray(buff, 32);
+      char buff[256] = {};
+      payload.toCharArray(buff, 256);
       lcd.clear();
       lcd.home();
-      for (i = 0; buff[i] != '\n' && buff[i] != '\0'; i++)
+      for (i = 0, r = 0; buff[i] != '\n'; i++, r++)
       {
-        lcd.setCursor(i, 0);
+        lcd.setCursor(r, 0);
         lcd.print(buff[i]);
       }
       i++;
-      for (; buff[i] != '\n' && buff[i] != '\0'; i++)
+      for (r = 0; buff[i] != '\0'; i++, r++)
       {
-        lcd.setCursor(i, 1);
+        lcd.setCursor(r, 1);
         lcd.print(buff[i]);
       }
-
-      //lcd.print(payload.c_str());
-      DEBUG(payload.c_str());
     }
     else
     {
@@ -194,7 +194,7 @@ void SendCardInfo(String param)
  {
     lcd.clear();
     lcd.setCursor(6, 0);
-    lcd.print("\x9F\x9E\x9C\x9B");
+    lcd.print("test");
     lcd.setCursor(3, 1);
     lcd.print("Energy Box");
  }

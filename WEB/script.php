@@ -35,7 +35,7 @@
 			echo mysqli_error($conn);
 		}
 
-		echo "Points accrued: ".$_Point."\n ";
+		echo "Points accrued:\n".$_Point."\0";
 	}
 	else
 	{
@@ -50,7 +50,7 @@
 				$Surname = $row["Surname"];
 				$Point = $row["Point"];
 			}
-			echo $Name." ".$Surname."\n Your points: ".$Point;
+			echo $Name." ".$Surname."\nYour points: ".$Point."\0";
 			mysqli_free_result($request);
 		}
 		else
