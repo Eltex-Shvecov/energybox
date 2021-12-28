@@ -1,16 +1,10 @@
-#include <LiquidCrystal.h>
 #include <rdm6300.h>
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 
 #define RDM_TX_PIN 13
-#define LED_RS 05
-#define LED_E 04
-#define LED_DB_4 00
-#define LED_DB_5 02
-#define LED_DB_6 14
-#define LED_DB_7 12
-
 #define DEBUG(var) Serial.println(var)
 
 const int DEBUG_LED = 2;
@@ -19,10 +13,55 @@ const char * SSID = "licey22";
 const char * PASS = "cYsRpDY4";
 
 Rdm6300 CardReader;
-LiquidCrystal lcd(LED_RS, LED_E, LED_DB_4, LED_DB_5, LED_DB_6, LED_DB_7);
+LiquidCrystal_I2C lcd(0x27,16,2);
+
 
 void LEDPrintWelcomeText();
 void SendCardInfo(String param);
+
+byte Battery_1[] = {
+  0x0E,
+  0x11,
+  0x11,
+  0x11,
+  0x11,
+  0x11,
+  0x11,
+  0x1F
+};
+
+byte Battery_2[] = {
+  0x0E,
+  0x11,
+  0x11,
+  0x11,
+  0x11,
+  0x11,
+  0x1F,
+  0x1F
+};
+
+byte Battery_3[] = {
+  0x0E,
+  0x11,
+  0x11,
+  0x1F,
+  0x1F,
+  0x1F,
+  0x1F,
+  0x1F
+};
+
+byte Battery_4[] = {
+  0x0E,
+  0x1F,
+  0x1F,
+  0x1F,
+  0x1F,
+  0x1F,
+  0x1F,
+  0x1F
+};
 
 class PointSystem
 {
@@ -51,13 +90,18 @@ class PointSystem
 void setup()
 {
   Serial.begin(115200);
-  lcd.begin(16, 2);
+  lcd.init();
+  lcd.backlight();
   pinMode(DEBUG_LED, OUTPUT);
-  pinMode(BUTTERY, INPUT);
+  pinMode(BUTTERY, INPUT_PULLUP);
 
   // пауза перед запуском платы
   int start_esp = 5;
   lcd.clear();
+  lcd.createChar(1, Battery_1);
+  lcd.createChar(2, Battery_2);
+  lcd.createChar(3, Battery_3);
+  lcd.createChar(4, Battery_4);
   lcd.home();
   lcd.print("Started ...");
   
@@ -95,10 +139,12 @@ void setup()
 void loop()
 {
   // обработчик датчика препятствия
-
+  
   if (!digitalRead(BUTTERY))
   {
-    while(!digitalRead(BUTTERY)) {}
+    delay(500);
+    while(!digitalRead(BUTTERY)) {yield();}
+    delay(500);
     Point.plusPoint(1);
     lcd.home();
     lcd.clear();
@@ -194,7 +240,10 @@ void SendCardInfo(String param)
  {
     lcd.clear();
     lcd.setCursor(6, 0);
-    lcd.print("test");
+    lcd.write(1);
+    lcd.write(2);
+    lcd.write(3);
+    lcd.write(4);
     lcd.setCursor(3, 1);
     lcd.print("Energy Box");
  }
